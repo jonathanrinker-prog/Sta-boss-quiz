@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slay the Spire 2 - Which Boss Are You?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        spire: {
+                            bg: '#070a12',
+                            panel: '#111726',
+                            border: '#253047',
+                            gold: '#f4a261',
+                            crimson: '#e63946',
+                            emerald: '#2a9d8f',
+                            purple: '#9d4edd',
+                            cyan: '#3a86ff',
+                            darkGold: '#b7791f'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070a12;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(157, 78, 221, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 90% 90%, rgba(230, 57, 70, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 10% 80%, rgba(42, 157, 143, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(17, 23, 38, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .option-card {
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(244, 162, 97, 0.6);
+            box-shadow: 0 4px 20px -2px rgba(244, 162, 97, 0.25);
+        }
+
+        .option-card.selected {
+            background: rgba(37, 48, 71, 0.95);
+            border-color: #f4a261;
+            box-shadow: 0 0 20px rgba(244, 162, 97, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #253047;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f4a261;
+        }
+    </style>
+</head>
+<body class="font-sans flex flex-col justify-between min-h-screen p-3 sm:p-6 md:p-8">
+
+    <!-- Header Navigation -->
+    <header class="max-w-4xl w-full mx-auto flex justify-between items-center py-3 border-b border-spire-border/60 mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-700 via-red-700 to-amber-600 flex items-center justify-center shadow-lg shadow-purple-900/50 border border-amber-500/30">
+                <i class="fa-solid fa-crown text-amber-200 text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-cinzel text-lg sm:text-xl font-bold tracking-wider text-slate-100 flex items-center gap-2">
+                    SLAY THE SPIRE 2 <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">BOSS QUIZ</span>
+                </h1>
+                <p class="text-xs text-slate-400">Discover Which Spire Guardian Mirrors Your Mindset</p>
+            </div>
+        </div>
+        <button id="restart-btn" onclick="restartQuiz()" class="hidden text-xs sm:text-sm px-3.5 py-1.5 rounded-lg border border-spire-border hover:bg-slate-800 transition text-slate-300 hover:text-white flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-rotate-right"></i> Restart
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl w-full mx-auto my-auto py-2">
+
+        <!-- INTRO SCREEN -->
+        <div id="intro-screen" class="glass-panel rounded-2xl p-6 sm:p-10 text-center relative overflow-hidden">
+            <div class="absolute -right-24 -top-24 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-24 -bottom-24 w-72 h-72 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/70 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-6 tracking-wide">
+                <i class="fa-solid fa-skull text-red-400"></i> ALL 11 SPIRE 2 BOSSES INCLUDED
+            </div>
+
+            <h2 class="font-cinzel text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-red-400 mb-4 leading-tight">
+                Which Slay the Spire 2 Boss Match Are You?
+            </h2>
+
+            <p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base mb-8 leading-relaxed">
+                From the corrupted depths of the Overgrowth to the throne room of Glory, every boss commands unique mechanics: phase shifts, lethal timers, multi-claw tactics, and double-edged curses. Answer 9 strategic scenarios to discover your true Spire Boss archetype.
+            </p>
+
+            <!-- Boss Acts Grid Preview -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto mb-10 text-left">
+                <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-900/40">
+                    <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider block mb-1">Act 1a • Overgrowth</span>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Kin Priest</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Ceremonial Beast</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Vantom</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/70 border border-cyan-900/40">
+                    <span class="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider block mb-1">Act 1b • Underdocks</span>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Lagavulin Matriarch</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Soul Fysh</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Waterfall Giant</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/70 border border-amber-900/40">
+                    <span class="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider block mb-1">Act 2 • Hive</span>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">The Insatiable</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Knowledge Demon</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Kaiser Crab</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/70 border border-purple-900/40">
+                    <span class="text-[10px] font-mono text-purple-400 font-bold uppercase tracking-wider block mb-1">Act 3 • Glory</span>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Queen</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Doormaker</div>
+                    <div class="text-xs font-bold font-cinzel text-slate-200">Test Subject #C10</div>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-slate-950 font-bold font-cinzel text-lg tracking-wider shadow-lg shadow-amber-600/30 transition transform hover:scale-105 active:scale-95 cursor-pointer">
+                Reveal My Boss Destiny <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden glass-panel rounded-2xl p-5 sm:p-8">
+            <!-- Progress Header -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-2 font-mono">
+                    <span id="question-tracker" class="text-amber-400 font-bold">QUESTION 1 OF 9</span>
+                    <span id="percentage-tracker">11% COMPLETED</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-800">
+                    <div id="progress-bar" class="bg-gradient-to-r from-amber-500 via-purple-500 to-red-500 h-full rounded-full transition-all duration-500 w-1/9"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-6">
+                <h3 id="question-title" class="font-cinzel text-xl sm:text-2xl font-bold text-slate-100 mb-2"></h3>
+                <p id="question-desc" class="text-xs sm:text-sm text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center pt-4 border-t border-spire-border/50">
+                <button id="prev-btn" onclick="previousQuestion()" class="px-4 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-xs sm:text-sm transition flex items-center gap-2 opacity-50 cursor-not-allowed" disabled>
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </button>
+                <div class="text-xs text-slate-500 italic">Select an option to proceed</div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-screen" class="hidden space-y-6">
+            <!-- Hero Boss Card -->
+            <div id="hero-banner" class="glass-panel rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+                <div id="hero-glow" class="absolute inset-0 opacity-20 pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                    <div id="hero-icon-box" class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl shrink-0 shadow-2xl border border-white/10">
+                        <!-- Boss Icon -->
+                    </div>
+
+                    <div class="flex-grow">
+                        <div class="flex flex-wrap items-center gap-2 justify-center md:justify-start mb-2">
+                            <span id="hero-act-badge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-slate-900 border">ACT 1</span>
+                            <span id="hero-hp-badge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-red-950/80 text-red-300 border border-red-800/50">HP: 250</span>
+                            <span id="match-pct-badge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">98% MATCH</span>
+                        </div>
+                        <h2 id="hero-name" class="font-cinzel text-3xl sm:text-4xl font-black text-white mb-1"></h2>
+                        <h4 id="hero-title" class="text-amber-400 text-xs sm:text-sm font-cinzel tracking-wider mb-4"></h4>
+                        <p id="hero-summary" class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4 max-w-2xl"></p>
+
+                        <!-- Key Trait Badges -->
+                        <div id="hero-traits" class="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <!-- Injected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Grid -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Mechanics & Deck Strategy -->
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="font-cinzel text-base font-bold text-amber-300 flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-gamepad text-amber-400"></i> Combat Mechanics & Counter Strategy
+                    </h3>
+                    <div class="space-y-3.5 text-xs sm:text-sm">
+                        <div>
+                            <span class="text-slate-400 font-mono text-[11px] uppercase tracking-wider block mb-1">Key Battle Mechanic:</span>
+                            <div id="boss-mechanic" class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-200 font-medium"></div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-mono text-[11px] uppercase tracking-wider block mb-1">Signature Move / Threat:</span>
+                            <div id="boss-signature" class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 text-amber-200"></div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-mono text-[11px] uppercase tracking-wider block mb-1">Recommended Player Counter-Strategy:</span>
+                            <p id="boss-counter" class="text-slate-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategic Mindset Profile -->
+                <div class="glass-panel rounded-xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-cinzel text-base font-bold text-amber-300 flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-brain text-amber-400"></i> Boss Personality Profile
+                        </h3>
+                        <p id="boss-psychology" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
+                    </div>
+
+                    <div class="bg-slate-900/70 rounded-xl p-4 border border-slate-800">
+                        <span class="text-[11px] font-mono text-amber-400 font-bold uppercase tracking-wider block mb-2">Ideal Deck Archetype Alignment:</span>
+                        <div id="deck-alignment" class="text-xs sm:text-sm font-bold text-slate-100 font-cinzel"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Affinity Chart -->
+            <div class="glass-panel rounded-xl p-6">
+                <h3 class="font-cinzel text-base font-bold text-slate-200 mb-4 flex items-center justify-between">
+                    <span>All 11 Boss Affinities</span>
+                    <span class="text-xs font-mono text-slate-400 font-normal">Score Weighted Breakdown</span>
+                </h3>
+                <div id="affinity-bars" class="space-y-3">
+                    <!-- Bars injected here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                <button onclick="shareResult()" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-600 transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-share-nodes"></i> Share Direct Link
+                </button>
+                <button onclick="restartQuiz()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-slate-950 font-bold font-cinzel text-sm shadow-lg shadow-amber-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i> Retake Test
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-4xl w-full mx-auto text-center py-4 text-xs text-slate-500 border-t border-spire-border/30 mt-8">
+        Slay the Spire 2 Boss Matcher • Created for Spire Climbers
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-slate-200 border border-slate-600 px-4 py-2.5 rounded-xl shadow-2xl text-xs flex items-center gap-2 transition-all duration-300 opacity-0 transform translate-y-4 pointer-events-none z-50">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i> <span id="toast-msg">Link copied to clipboard!</span>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // Quiz Questions Data (9 Scenario Questions)
+        const questions = [
+            {
+                title: "Handling Turn Timers & Pressure",
+                desc: "How do you respond when a fight imposes a strict limit on time or turns before inevitable defeat?",
+                options: [
+                    {
+                        text: "I thrive under deadline pressure! I drop all defense and burst everything before the timer runs out.",
+                        subtext: "High risk, maximum speed, complete commitment to damage.",
+                        scores: { insatiable: 3, ceremonial_beast: 2, vantom: 1 }
+                    },
+                    {
+                        text: "I carefully calculate every action to extend my survival by exact turns.",
+                        subtext: "Precision resource usage and micro-extending the clock.",
+                        scores: { knowledge_demon: 3, soul_fysh: 2, doormaker: 1 }
+                    },
+                    {
+                        text: "I build an early wall so the timer doesn't matter when the strike lands.",
+                        subtext: "Heavy defense first, ensuring I survive the incoming storm.",
+                        scores: { waterfall_giant: 3, lagavulin_matriarch: 2, kaiser_crab: 1 }
+                    },
+                    {
+                        text: "I adjust my strategy across distinct phases as the situation shifts.",
+                        subtext: "Adaptability and shifting goals as the fight progresses.",
+                        scores: { test_subject: 3, queen: 2, kin_priest: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Multi-Target Combat & Minion Management",
+                desc: "When facing multiple opponents on the field, what is your tactical priority?",
+                options: [
+                    {
+                        text: "Hide behind loyal minions while debuffing and directing from the backline.",
+                        subtext: "Let proxies absorb damage while I control the battlefield.",
+                        scores: { kin_priest: 3, queen: 3, lagavulin_matriarch: 1 }
+                    },
+                    {
+                        text: "Split my damage equally to dismantle both threats at the same time.",
+                        subtext: "Dual-target management and balanced pressure.",
+                        scores: { kaiser_crab: 3, doormaker: 2, test_subject: 1 }
+                    },
+                    {
+                        text: "Ignore the minions entirely and tunnel-vision the main leader.",
+                        subtext: "Single-target direct focus to end the fight at the source.",
+                        scores: { ceremonial_beast: 2, vantom: 3, insatiable: 2 }
+                    },
+                    {
+                        text: "Use phase-shifting or stealth to force enemies into wasting their turns.",
+                        subtext: "Mitigate multi-hit attacks with timing windows and intangibility.",
+                        scores: { soul_fysh: 3, vantom: 2, lagavulin_matriarch: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Curse & Dilemma Management",
+                desc: "You are forced to choose between two negative penalties to continue the battle. Which penalty do you accept?",
+                options: [
+                    {
+                        text: "I accept recurring small damage each turn—pain is manageable if my speed stays high.",
+                        subtext: "Take direct attrition to maintain maximum action economy.",
+                        scores: { knowledge_demon: 3, insatiable: 2, ceremonial_beast: 1 }
+                    },
+                    {
+                        text: "I take card-play limits or card-draw restrictions and rely on high-impact individual cards.",
+                        subtext: "Fewer cards played, but each card hits twice as hard.",
+                        scores: { ceremonial_beast: 3, knowledge_demon: 2, doormaker: 1 }
+                    },
+                    {
+                        text: "I allow stat debuffs (Strength/Dexterity loss) because my deck scales through non-stat means.",
+                        subtext: "Bypass stat reductions using poison, orbs, or static triggers.",
+                        scores: { lagavulin_matriarch: 3, queen: 2, waterfall_giant: 1 }
+                    },
+                    {
+                        text: "I clog my deck with junk/status cards because I can exhaust or cycle them.",
+                        subtext: "Deck bloat doesn't scare me if I can exhaust cards for power.",
+                        scores: { vantom: 3, soul_fysh: 2, kin_priest: 2 }
+                    }
+                ]
+            },
+            {
+                title: "Patience vs Immediate Action",
+                desc: "How do you prefer the opening 2 turns of a boss battle to unfold?",
+                options: [
+                    {
+                        text: "Start completely dormant/defensive, taking zero risk while gathering full strength.",
+                        subtext: "Sleep or shield until setup is 100% complete.",
+                        scores: { lagavulin_matriarch: 3, waterfall_giant: 3, vantom: 1 }
+                    },
+                    {
+                        text: "Unleash immediate aggression to shock the enemy from turn one.",
+                        subtext: "Zero setup phase—strike hard right out of the gate.",
+                        scores: { ceremonial_beast: 3, insatiable: 2, kaiser_crab: 1 }
+                    },
+                    {
+                        text: "Lay down structural barriers or door defenses that force the enemy to break through.",
+                        subtext: "Force the enemy to waste energy breaking shields/phases.",
+                        scores: { doormaker: 3, queen: 2, kaiser_crab: 2 }
+                    },
+                    {
+                        text: "Analyze the enemy's stance and evolve my strategy over multiple revives or forms.",
+                        subtext: "Patience through multi-stage evolution.",
+                        scores: { test_subject: 3, knowledge_demon: 2, soul_fysh: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Defensive Mastery & Mitigation Style",
+                desc: "What is your primary method of preventing lethal incoming damage?",
+                options: [
+                    {
+                        text: "Slippery / Layered hit counts: I take zero damage from initial hits regardless of power.",
+                        subtext: "Multi-stack shields that ignore raw damage values.",
+                        scores: { vantom: 3, lagavulin_matriarch: 2, soul_fysh: 1 }
+                    },
+                    {
+                        text: "Heavy Armored Claws / Dual Defense walls.",
+                        subtext: "High flat block values and dual target defense.",
+                        scores: { kaiser_crab: 3, doormaker: 2, waterfall_giant: 2 font }
+                    },
+                    {
+                        text: "Rhythmic Intangible cycles: Complete immunity on specific predictable turns.",
+                        subtext: "Phasing out entirely when the heavy hit lands.",
+                        scores: { soul_fysh: 3, vantom: 2, test_subject: 1 }
+                    },
+                    {
+                        text: "Steam Eruption / Retaliatory Blast: Absorb hits and release all accumulated energy at once.",
+                        subtext: "Store damage received and detonate it back onto the attacker.",
+                        scores: { waterfall_giant: 3, ceremonial_beast: 2, insatiable: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Handling Phase Transitions",
+                desc: "When an opponent breaks through your primary health bar or defenses, what happens next?",
+                options: [
+                    {
+                        text: "I enter a Stunned/Rebound state, then return with clean scaling power.",
+                        subtext: "Reset debuffs and enter an altered combat rhythm.",
+                        scores: { ceremonial_beast: 3, lagavulin_matriarch: 2, doormaker: 2 }
+                    },
+                    {
+                        text: "I revive with fresh modifiers, adapting my resistances to what hit me.",
+                        subtext: "Sequential revives with evolving passive traits.",
+                        scores: { test_subject: 3, queen: 2, soul_fysh: 1 }
+                    },
+                    {
+                        text: "My destruction triggers a massive final curse or explosive penalty.",
+                        subtext: "Even in death, my defeat inflicts permanent damage.",
+                        scores: { waterfall_giant: 3, insatiable: 2, knowledge_demon: 2 }
+                    },
+                    {
+                        text: "I shift form between an impenetrable outer barrier and a deadly inner caster.",
+                        subtext: "Cycling state between total shield and heavy attack.",
+                        scores: { doormaker: 3, kaiser_crab: 2, kin_priest: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Debuffing & Status Conditions",
+                desc: "Which status ailment or debuff do you find most satisfying to inflict?",
+                options: [
+                    {
+                        text: "Afflictions and Bound Cards: Disrupting the enemy's hand and deck control.",
+                        subtext: "Crippling their choices before they can even play cards.",
+                        scores: { queen: 3, knowledge_demon: 2, kin_priest: 2 }
+                    },
+                    {
+                        text: "Sandpit / Devour Counters: Placing an unstoppable death clock on their head.",
+                        subtext: "A ticking timer of absolute doom.",
+                        scores: { insatiable: 3, waterfall_giant: 2, ceremonial_beast: 1 }
+                    },
+                    {
+                        text: "Ringing / Card Penalties: Limiting how many cards they can play each turn.",
+                        subtext: "Restricting their energy and card output.",
+                        scores: { ceremonial_beast: 3, knowledge_demon: 2, lagavulin_matriarch: 1 }
+                    },
+                    {
+                        text: "Beckon / Ethereal Discard: Forcing them to waste draw steps on useless spirits.",
+                        subtext: "Polluting their draw pile with phantom cards.",
+                        scores: { soul_fysh: 3, vantom: 2, queen: 1 }
+                    }
+                ]
+            },
+            {
+                title: "Boss Mindset & Battle Demeanor",
+                desc: "What best describes your presence on the battlefield?",
+                options: [
+                    {
+                        text: "Ancient, patient, and unshakeable until disturbed from rest.",
+                        subtext: "Quiet power that erupts into terrifying dominance.",
+                        scores: { lagavulin_matriarch: 3, waterfall_giant: 2, doormaker: 1 }
+                    },
+                    {
+                        text: "Calculated, intellectual, and cruel—offering Faustian bargains.",
+                        subtext: "Forcing opponents into impossible tactical choices.",
+                        scores: { knowledge_demon: 3, queen: 2, kin_priest: 1 }
+                    },
+                    {
+                        text: "Voracious, relentless, and driven by insatiable hunger.",
+                        subtext: "Unstoppable force that consumes everything in its path.",
+                        scores: { insatiable: 3, ceremonial_beast: 2, kaiser_crab: 1 }
+                    },
+                    {
+                        text: "An intricate relic of dark science—constantly testing and evolving.",
+                        subtext: "Experimental multi-phase trial that tests complete deck endurance.",
+                        scores: { test_subject: 3, soul_fysh: 2, vantom: 1 }
+                    }
+                ]
+            },
+            {
+                title: "The Ultimate Spire Victory",
+                desc: "How do you want your battle against Spire climbers to end?",
+                options: [
+                    {
+                        text: "Outlasting their deck until they suffocate under endless escalations.",
+                        subtext: "Slow, methodical attrition that proves absolute superiority.",
+                        scores: { knowledge_demon: 2, queen: 3, lagavulin_matriarch: 2 }
+                    },
+                    {
+                        text: "Devouring them whole in one sudden, inescapable turn of massive damage.",
+                        subtext: "Instant-kill apex moment.",
+                        scores: { insatiable: 3, ceremonial_beast: 2, waterfall_giant: 2 }
+                    },
+                    {
+                        text: "Overwhelming them with coordinated minion synergy and backline artillery.",
+                        subtext: "Commanding an army while staying untouchable.",
+                        scores: { kin_priest: 3, queen: 2, kaiser_crab: 1 }
+                    },
+                    {
+                        text: "Exhausting all their options across 3 distinct combat transformations.",
+                        subtext: "Proving that no single strategy can overcome your adaptability.",
+                        scores: { test_subject: 3, doormaker: 2, soul_fysh: 2 }
+                    }
+                ]
+            }
+        ];
+
+        // All 11 Bosses Profiles
+        const bosses = {
+            kin_priest: {
+                name: "Kin Priest",
+                act: "Act 1a • Overgrowth",
+                hp: "190 HP (+ Followers)",
+                icon: "fa-users-rays",
+                colorClass: "from-emerald-700 to-teal-900",
+                textColor: "text-emerald-400",
+                borderColor: "border-emerald-500/40",
+                summary: "You are a tactical commander who operates behind protective forces. You prefer directing the flow of battle from the backline, applying heavy Frail and Weak debuffs while your loyal followers absorb hits and deliver steady damage.",
+                traits: ["Trio Squad Battle", "Backline Debuffer", "Minion Synergy", "Frail / Weak Cycles"],
+                mechanic: "Protected behind two Kin Followers (58 HP each). The Priest casts scaling debuffs while followers deal heavy physical attacks.",
+                signature: "Kin Ritual — Inflicts Frail & Weak while boosting follower Strength.",
+                counter: "Cleave / AOE damage to clear followers quickly, or heavy single-target burst to assassinate the Priest early.",
+                psychology: "You believe true strength lies in structure, squad coordination, and delegation. You make enemies fight through your defenses before facing you.",
+                deckAlignment: "Necrobinder Minion Swarm / Ironclad AOE Cleave"
+            },
+            ceremonial_beast: {
+                name: "Ceremonial Beast",
+                act: "Act 1a • Overgrowth",
+                hp: "252 HP",
+                icon: "fa-hippo",
+                colorClass: "from-red-700 to-amber-900",
+                textColor: "text-red-400",
+                borderColor: "border-red-500/40",
+                summary: "You are a relentless, ramping force of fury. You attack every turn and build immense Strength. When forced out of your initial frenzy, you stun and reset, only to resume with oppressive Ringing debuffs that limit card plays.",
+                traits: ["Rapid Strength Scaling", "Stun / Phase Reset", "Ringing Debuff", "High Pressure"],
+                mechanic: "Gains +2 Strength every turn in Phase 1. Reduces to Phase 2 at 150 HP, stunning itself briefly before applying card-play limits.",
+                signature: "Ringing Bell — Limits the player to playing only 1 card on specific turns.",
+                counter: "Aggressive front-loaded burst to force the Phase 1 stun before Strength scales out of control.",
+                psychology: "You press the attack constantly. You don't wait for your opponent to get comfortable—you demand immediate answers or steamroll them.",
+                deckAlignment: "Ironclad Heavy Strength / Aggressive Burst"
+            },
+            vantom: {
+                name: "Vantom",
+                act: "Act 1a • Overgrowth",
+                hp: "173 HP",
+                icon: "fa-ghost",
+                colorClass: "from-purple-800 to-slate-900",
+                textColor: "text-purple-400",
+                borderColor: "border-purple-500/40",
+                summary: "You are elusive, shadowy, and frustrating to hit directly. You shield yourself behind Slippery stacks that completely nullify initial heavy attacks, punishing players who rely on single big strikes.",
+                traits: ["Slippery Stacks", "Multi-Hit Requirement", "Wound Generation", "Heavy Drop Attack"],
+                mechanic: "Protected by 9 stacks of Slippery. Each hit removes 1 stack. Only when all stacks vanish can Vantom take direct HP damage.",
+                signature: "Shadow Plunge — Deals massive 27+ damage while shuffling 3 Wounds into the player's deck.",
+                counter: "Multi-hit attacks (Twin Strike, Blade Dance) or Orbs to strip Slippery stacks rapidly.",
+                psychology: "You play defensively by making raw power useless. You force enemies to waste their best cards on your illusions before delivering your crushing blow.",
+                deckAlignment: "Silent Shiv Multi-Hit / Defect Lightning Orbs"
+            },
+            lagavulin_matriarch: {
+                name: "Lagavulin Matriarch",
+                act: "Act 1b • Underdocks",
+                hp: "222 HP",
+                icon: "fa-shield-halved",
+                colorClass: "from-cyan-800 to-slate-900",
+                textColor: "text-cyan-400",
+                borderColor: "border-cyan-500/40",
+                summary: "You are ancient, patient, and terrifying when awakened. You start battle dormant behind heavy Plating, allowing enemies to prepare—but once disturbed, you permanently drain their Strength and Dexterity.",
+                traits: ["Dormant Plating", "Permanent Stat Drain", "Patience / Setup", "Heavy Melee"],
+                mechanic: "Starts asleep with 12 Plating. Breaks awake after armor is depleted, then cycles heavy damage with permanent -2 Strength/Dexterity siphon.",
+                signature: "Siphon Soul — Permanently reduces player Strength and Dexterity by 2 every cycle.",
+                counter: "Take 2-3 free turns to set up Powers, Poison, or Osty summons before breaking her slumber.",
+                psychology: "You believe in quiet reserve. You let opponents make the first move, knowing your late-game attrition will strip away everything they have.",
+                deckAlignment: "Silent Poison Scaling / Defect Power Setup"
+            },
+            soul_fysh: {
+                name: "Soul Fysh",
+                act: "Act 1b • Underdocks",
+                hp: "211 HP",
+                icon: "fa-fish-fins",
+                colorClass: "from-teal-700 to-blue-900",
+                textColor: "text-teal-300",
+                borderColor: "border-teal-500/40",
+                summary: "You operate on a strict, rhythmic combat cycle. You weave between spectral Intangibility windows, forcing useless Beckon cards into opponent hands, and unleashing etheric blasts on schedule.",
+                traits: ["5-Turn Rhythm Cycle", "Intangible Windows", "Beckon Hand Clogging", "Spectral Evasion"],
+                mechanic: "Cycles between physical attacks, status clutter, and Intangible turns where it takes only 1 damage per hit.",
+                signature: "Soul Beckon — Forces Ethereal status cards into the player's hand that discard key resources.",
+                counter: "Track the 5-turn rotation closely; save big damage turns for non-Intangible windows.",
+                psychology: "You master rhythm and timing. You don't need to block everything—you simply step out of phase when the big hit arrives.",
+                deckAlignment: "Silent Discard & Cycle / Defect Evoke Timing"
+            },
+            waterfall_giant: {
+                name: "Waterfall Giant",
+                act: "Act 1b • Underdocks",
+                hp: "250 HP",
+                icon: "fa-water",
+                colorClass: "from-blue-700 to-indigo-950",
+                textColor: "text-blue-400",
+                borderColor: "border-blue-500/40",
+                summary: "You are a massive, slow-moving force of nature. You build up Steam Eruption stacks throughout combat, turning every hit you take into an inevitable explosive detonation upon your defeat.",
+                traits: ["Steam Eruption Scaling", "High HP Pool", "Retaliatory Blast", "Inevitable Threat"],
+                mechanic: "Accumulates Steam stacks whenever attacked or taking turns. Upon death or threshold, detonates for AOE damage equal to steam stacks.",
+                signature: "Geyser Burst — Releases accumulated Steam Eruption stacks into devastating multi-hit damage.",
+                counter: "Balanced damage scaling that doesn't trigger unnecessary steam stacks without lethal kill math.",
+                psychology: "You are unstoppable momentum. You absorb punishment calmly because you know time and pressure are entirely on your side.",
+                deckAlignment: "Ironclad Barricade / Defect Frost Stacking"
+            },
+            insatiable: {
+                name: "The Insatiable",
+                act: "Act 2 • Hive",
+                hp: "340 HP",
+                icon: "fa-worm",
+                colorClass: "from-amber-600 to-red-900",
+                textColor: "text-amber-400",
+                borderColor: "border-amber-500/40",
+                summary: "You are the ultimate executioner timer. You place a Sandpit countdown on the battlefield. If the enemy cannot kill you before the counter reaches zero, you devour them instantly.",
+                traits: ["Sandpit Instant Kill", "Frantic Escape Cards", "Lethal Turn Clock", "Relentless Hunger"],
+                mechanic: "Applies Sandpit counter (starts at 4). Ticks down each turn. Devours player instantly at 0. Player must play Frantic Escape status cards to buy time.",
+                signature: "Devour — Instant kill attack triggered when the Sandpit timer expires.",
+                counter: "High front-loaded burst damage; manage Frantic Escape cards without starving your damage output.",
+                psychology: "You create sheer panic. You force opponents to make desperate errors by putting an absolute clock on their survival.",
+                deckAlignment: "Ironclad Perfected Strike Burst / Silent Poison Catalyst"
+            },
+            knowledge_demon: {
+                name: "Knowledge Demon",
+                act: "Act 2 • Hive",
+                hp: "379 HP",
+                icon: "fa-book-skull",
+                colorClass: "from-purple-700 to-rose-950",
+                textColor: "text-purple-300",
+                borderColor: "border-purple-500/40",
+                summary: "You are a cruel intellectual who forces Faustian choices. Every few turns, you compel opponents to select between two escalating permanent curses—testing whether they collapse under attrition or risk taking raw damage.",
+                traits: ["Curse of Knowledge", "Dilemma Mechanics", "Energy / Card Reduction", "War of Attrition"],
+                mechanic: "Forces players to choose escalating penalties: Disintegration (DoT), Sloth (Max 3 cards/turn), Mind Rot (-1 Draw), or Waste Away (-1 Energy).",
+                signature: "Demonic Choice — Compels the player to pick their own poisonous handicap every 3 turns.",
+                counter: "End the fight fast before 3rd choice; pick Disintegration DoT if high block/healing is available.",
+                psychology: "You win by making your enemies architect their own defeat. You present choices where every answer carries a heavy price.",
+                deckAlignment: "Defect Power Engine / Necrobinder Graveyard Exhaust"
+            },
+            kaiser_crab: {
+                name: "Kaiser Crab",
+                act: "Act 2 • Hive",
+                hp: "199 HP (Crusher) + 189 HP (Rocket)",
+                icon: "fa-crustacean",
+                colorClass: "from-orange-600 to-red-950",
+                textColor: "text-orange-400",
+                borderColor: "border-orange-500/40",
+                summary: "You are a titanic multi-target titan. Opponents don't fight your body directly—they must battle your lethal Crusher and Rocket claws simultaneously, balancing positioning and directional defense.",
+                traits: ["Dual-Claw Boss", "Directional Stance", "Target Switching", "Enrage on Claw Death"],
+                mechanic: "Two targets: Crusher Claw (consistent physical attacks) and Rocket Claw (heavy burst). Destroying one claw causes the remaining claw to gain massive Block & Strength.",
+                signature: "Rocket Slam & Crusher Pin — High physical assault from two distinct angles.",
+                counter: "Destroy Rocket Claw first to remove heavy burst, or use Cleave / Poison to kill both claws simultaneously.",
+                psychology: "You overwhelm opponents from multiple angles. You force them to split their focus and punish them the moment they favor one side.",
+                deckAlignment: "Silent Poison Cleave / Ironclad Whirlwind"
+            },
+            queen: {
+                name: "Queen",
+                act: "Act 3 • Glory",
+                hp: "400 HP (+ Torch Head 199 HP)",
+                icon: "fa-crown",
+                colorClass: "from-yellow-600 via-amber-700 to-purple-950",
+                textColor: "text-amber-300",
+                borderColor: "border-amber-500/40",
+                summary: "You are majestic, tyrannical, and oppressive. Accompanied by your Torch Head Amalgam minion, you bind player cards, inflict crippling Afflictions, and turn your minion into an unstoppable killing machine.",
+                traits: ["Chains of Binding", "Card Afflictions", "Minion Commander", "Throne Room Tyranny"],
+                mechanic: "Casts Chains of Binding (locks drawn cards) and Afflictions. Buffs Torch Head Amalgam (199 HP) into a devastating weapon.",
+                signature: "Chains of Binding — Binds the first 3 cards drawn each turn, restricting instant card play.",
+                counter: "Focus down the Queen directly or bring card cleanse / heavy hand-cycling options to bypass Afflictions.",
+                psychology: "You rule through control and restriction. You bind your enemy's options while letting your loyal enforcer do the heavy lifting.",
+                deckAlignment: "Silent Draw/Discard Engine / Defect Echo Form Setup"
+            },
+            doormaker: {
+                name: "Doormaker",
+                act: "Act 3 • Glory",
+                hp: "489 HP (Total Across Cycles)",
+                icon: "fa-door-closed",
+                colorClass: "from-indigo-700 to-slate-950",
+                textColor: "text-indigo-300",
+                borderColor: "border-indigo-500/40",
+                summary: "You cycle between an impenetrable barrier state (The Door - 155 HP) and your true caster form. Each time your Door is breached, you emerge with higher Strength, creating a demanding phase-cycling marathon.",
+                traits: ["Door Barrier Phase", "Form Cycling", "Strength Scaling Per Cycle", "Marathon Tank"],
+                mechanic: "Cycles between Door Form (155 HP shield wall) and True Doormaker Form. Gains permanent Strength every time the Door resets.",
+                signature: "Dimensional Threshold — Resets the Door barrier while boosting permanent attack scaling.",
+                counter: "Save burst damage for the exposed Doormaker phase; avoid wasting big attacks on the Door phase.",
+                psychology: "You present a barrier that demands endurance. You test whether opponents can sustain high damage outputs across multiple defensive cycles.",
+                deckAlignment: "Ironclad Strength Body Slam / Silent Catalyst Loop"
+            },
+            test_subject: {
+                name: "Test Subject #C10",
+                act: "Act 3 • Glory",
+                hp: "100 → 200 → 300 HP (3 Revive Phases)",
+                icon: "fa-vial-circle-check",
+                colorClass: "from-purple-600 via-pink-700 to-indigo-950",
+                textColor: "text-pink-300",
+                borderColor: "border-pink-500/40",
+                summary: "You are the ultimate adaptive experiment. You possess 3 distinct health bars and revive twice with increasing HP and altered modifiers, making you the longest and most comprehensive deck test in the Spire.",
+                traits: ["3 Revive Phases", "Adaptive Modifiers", "Scaling Endurance Check", "Evolving Tactics"],
+                mechanic: "Revives upon death twice (100 HP → 200 HP → 300 HP). Each phase gains different passive modifiers to counter player tactics.",
+                signature: "Adaptive Evolution — Resurrects with restored health and upgraded combat traits.",
+                counter: "Requires a deck with infinite or long-term scaling; front-loaded decks run out of steam in Phase 3.",
+                psychology: "You evolve past defeat. Whatever doesn't kill you makes you stronger, forcing opponents to prove their deck works across every combat situation.",
+                deckAlignment: "Defect Focus & Orb Infinite / Necrobinder Graveyard Loop"
+            }
+        };
+
+        // State Tracking
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let scores = {};
+        let currentBossMatchKey = null;
+
+        // DOM Elements
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Check URL Hash on Load for Direct Shared Links
+        window.onload = function() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#boss=')) {
+                const bossKey = hash.replace('#boss=', '').trim();
+                if (bosses[bossKey]) {
+                    // Populate default scores if loaded via shared URL
+                    Object.keys(bosses).forEach(b => scores[b] = 1);
+                    scores[bossKey] = 20;
+                    introScreen.classList.add('hidden');
+                    quizScreen.classList.add('hidden');
+                    restartBtn.classList.remove('hidden');
+                    displayResult(bossKey);
+                }
+            }
+        };
+
+        function startQuiz() {
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            restartBtn.classList.remove('hidden');
+            currentQuestion = 0;
+            userAnswers.fill(null);
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            
+            // Progress Trackers
+            document.getElementById('question-tracker').innerText = `QUESTION ${currentQuestion + 1} OF ${questions.length}`;
+            const pct = Math.round(((currentQuestion + 1) / questions.length) * 100);
+            document.getElementById('percentage-tracker').innerText = `${pct}% COMPLETED`;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+
+            // Question Text
+            document.getElementById('question-title').innerText = q.title;
+            document.getElementById('question-desc').innerText = q.desc;
+
+            // Render Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = userAnswers[currentQuestion] === idx;
+                const optionEl = document.createElement('div');
+                optionEl.className = `option-card p-4 rounded-xl border cursor-pointer flex items-start gap-3.5 ${
+                    isSelected ? 'selected' : 'bg-slate-900/60 border-spire-border/70 hover:bg-slate-800/60'
+                }`;
+                
+                optionEl.onclick = () => selectOption(idx);
+
+                optionEl.innerHTML = `
+                    <div class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                        isSelected ? 'border-amber-400 bg-amber-400 text-slate-950' : 'border-slate-600 text-transparent'
+                    }">
+                        <i class="fa-solid fa-check text-[10px] font-bold"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-slate-100 text-xs sm:text-sm leading-snug mb-0.5">${opt.text}</h4>
+                        <p class="text-[11px] text-slate-400 leading-normal">${opt.subtext}</p>
+                    </div>
+                `;
+                container.appendChild(optionEl);
+            });
+
+            // Prev Button
+            const prevBtn = document.getElementById('prev-btn');
+            if (currentQuestion === 0) {
+                prevBtn.disabled = true;
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.disabled = false;
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            renderQuestion();
+
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    renderQuestion();
+                } else {
+                    calculateResults();
+                }
+            }, 220);
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function calculateResults() {
+            // Reset scores for all 11 bosses
+            scores = {};
+            Object.keys(bosses).forEach(b => scores[b] = 0);
+
+            // Accumulate scores
+            userAnswers.forEach((ansIdx, qIdx) => {
+                if (ansIdx !== null) {
+                    const selectedOpt = questions[qIdx].options[ansIdx];
+                    for (const [bossKey, pts] of Object.entries(selectedOpt.scores)) {
+                        if (scores[bossKey] !== undefined) {
+                            scores[bossKey] += pts;
+                        }
+                    }
+                }
+            });
+
+            // Find top boss
+            let topBossKey = 'insatiable';
+            let maxPts = -1;
+
+            for (const [bossKey, pts] of Object.entries(scores)) {
+                if (pts > maxPts) {
+                    maxPts = pts;
+                    topBossKey = bossKey;
+                }
+            }
+
+            displayResult(topBossKey);
+        }
+
+        function displayResult(bossKey) {
+            currentBossMatchKey = bossKey;
+            const b = bosses[bossKey];
+
+            // Update URL Fragment so the result can be directly shared
+            window.location.hash = `boss=${bossKey}`;
+
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Hero Main Card
+            const iconBox = document.getElementById('hero-icon-box');
+            iconBox.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl shrink-0 shadow-2xl border border-white/10 bg-gradient-to-br ${b.colorClass}`;
+            iconBox.innerHTML = `<i class="fa-solid ${b.icon} text-white"></i>`;
+
+            document.getElementById('hero-act-badge').innerText = b.act;
+            document.getElementById('hero-hp-badge').innerText = b.hp;
+            
+            // Calculate Match Percentage (Max possible points is around 18-24)
+            const maxScore = Math.max(...Object.values(scores));
+            const matchPct = Math.min(99, Math.max(72, Math.round((scores[bossKey] / (questions.length * 3)) * 100 + 45)));
+            document.getElementById('match-pct-badge').innerText = `${matchPct}% MATCH`;
+
+            document.getElementById('hero-name').innerText = b.name;
+            document.getElementById('hero-title').innerText = b.act;
+            document.getElementById('hero-summary').innerText = b.summary;
+
+            // Traits
+            const traitsContainer = document.getElementById('hero-traits');
+            traitsContainer.innerHTML = b.traits.map(t => 
+                `<span class="px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-[11px] text-slate-300 font-medium">
+                    <i class="fa-solid fa-skull text-[9px] text-amber-400 mr-1"></i> ${t}
+                </span>`
+            ).join('');
+
+            // Mechanics & Psychology
+            document.getElementById('boss-mechanic').innerText = b.mechanic;
+            document.getElementById('boss-signature').innerText = b.signature;
+            document.getElementById('boss-counter').innerText = b.counter;
+            document.getElementById('boss-psychology').innerText = b.psychology;
+            document.getElementById('deck-alignment').innerText = b.deckAlignment;
+
+            // Render Full 11 Boss Affinity Bars
+            const sortedBosses = Object.keys(scores).sort((x, y) => scores[y] - scores[x]);
+            const highestScoreVal = Math.max(1, scores[sortedBosses[0]]);
+
+            const affinityContainer = document.getElementById('affinity-bars');
+            affinityContainer.innerHTML = '';
+
+            sortedBosses.forEach(key => {
+                const item = bosses[key];
+                const scoreVal = scores[key];
+                const barWidthPct = Math.round((scoreVal / highestScoreVal) * 100);
+
+                const barEl = document.createElement('div');
+                barEl.className = 'space-y-1';
+                barEl.innerHTML = `
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid ${item.icon} ${item.textColor} w-4 text-center"></i> 
+                            ${item.name} <span class="text-[10px] text-slate-500 font-normal">(${item.act.split('•')[0].trim()})</span>
+                        </span>
+                        <span class="text-slate-400 font-mono text-[11px]">${scoreVal} pts</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                        <div class="bg-gradient-to-r ${item.colorClass} h-full rounded-full transition-all duration-500" style="width: ${Math.max(6, barWidthPct)}%"></div>
+                    </div>
+                `;
+                affinityContainer.appendChild(barEl);
+            });
+        }
+
+        function restartQuiz() {
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            restartBtn.classList.add('hidden');
+            currentQuestion = 0;
+            userAnswers.fill(null);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function shareResult() {
+            const bossName = document.getElementById('hero-name').innerText;
+            const shareUrl = window.location.href;
+            const textToCopy = `I matched with ${bossName} in the Slay the Spire 2 Boss Personality Quiz! Check out my result link: ${shareUrl}`;
+            
+            // Execute Copy to Clipboard
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Share link copied to clipboard!');
+            } catch (err) {
+                showToast('Failed to copy link.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
